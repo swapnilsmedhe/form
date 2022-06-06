@@ -8,24 +8,42 @@ const writeToJson = (inputs, fileName) => {
   fs.writeFileSync(fileName, JSON.stringify(userInfo), 'utf8');
 };
 
-const readInput = (callback, fileName, messages) => {
+const readInput = (callback, messages, validators, fileName) => {
   let index = 0;
   const inputs = [];
+  console.log(messages[index]);
   process.stdin.setEncoding('utf8');
+
   process.stdin.on('data', (chunk) => {
-    inputs.push(chunk.slice(0, -1));
+    const validator = validators[index];
+    const input = chunk.trim();
+    if (validator(input)) {
+      inputs.push(input);
+      index++;
+    }
     console.log(messages[index]);
-    index++;
   });
+
   process.stdin.on('end', () => {
     callback(inputs, fileName);
   });
 };
 
+const areAllAlphabets = (string) => {
+  return /^[a-z]+$/.test(string);
+};
+
+const isNameValid = (name) => {
+  return name.length < 5 ? false : areAllAlphabets(name);
+};
+
+const isDateValid = (date) => true;
+const areHobbiesValid = (hobbies) => hobbies.length > 0;
+
 const main = () => {
-  const messages = ['Please enter your DOB', 'Please enter your hobbies', 'Thank you'];
-  console.log('Please enter your name');
-  readInput(writeToJson, './userInfo.json', messages);
+  const messages = ['Please enter your name', 'Please enter your DOB', 'Please enter your hobbies', 'Thank you'];
+  const validators = [isNameValid, isDateValid, areHobbiesValid];
+  readInput(writeToJson, messages, validators, './userInfo.json');
 };
 
 main();
