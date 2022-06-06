@@ -6,6 +6,7 @@ const writeToJson = (inputs, fileName) => {
   userInfo.dob = inputs[1];
   userInfo.hobbies = inputs[2].split(',');
   userInfo.phoneNumber = +inputs[3];
+  userInfo.address = [inputs[4], inputs[5]].join('\n');
   fs.writeFileSync(fileName, JSON.stringify(userInfo), 'utf8');
 };
 
@@ -50,12 +51,15 @@ const isPhoneNumValid = (phoneNumber) => {
   return phoneNumber.length === 10 && areAllDigits(phoneNumber);
 };
 
+const isAddressValid = (address) => true;
+
 const main = () => {
   const messages = [
-    'Please enter your name', 'Please enter your DOB', 'Please enter your hobbies', 'Enter phone number', 'Thank you'
+    'Please enter your name', 'Please enter your DOB', 'Please enter your hobbies', 'Enter phone number', 'Enter address line 1', 'Enter address line 2', 'Thank you'
   ];
   const validators = [
-    isNameValid, isDateValid, areHobbiesValid, isPhoneNumValid
+    isNameValid, isDateValid, areHobbiesValid,
+    isPhoneNumValid, isAddressValid, isAddressValid
   ];
   readInput(writeToJson, messages, validators, './userInfo.json');
 };
