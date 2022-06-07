@@ -2,10 +2,14 @@ class Form {
   #fields;
   #index;
   #formDetails;
-  constructor(fields) {
-    this.#fields = fields;
+  constructor() {
+    this.#fields = [];
     this.#index = 0;
     this.#formDetails = {};
+  }
+
+  addField(name, query, validator, transformer) {
+    this.#fields.push({ name, query, validator, transformer });
   }
 
   query() {

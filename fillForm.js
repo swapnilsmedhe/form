@@ -53,33 +53,14 @@ const identity = (arg) => arg;
 const splitHobbies = (hobbies) => hobbies.split(',');
 
 const main = () => {
-  const fields = [
-    {
-      name: 'name', query: 'Please enter your name',
-      validator: isNameValid, transformer: identity
-    },
-    {
-      name: 'dob', query: 'Please enter your dob',
-      validator: isDateValid, transformer: identity
-    },
-    {
-      name: 'hobbies', query: 'Please enter your hobbies',
-      validator: areHobbiesValid, transformer: splitHobbies
-    },
-    {
-      name: 'phoneNumber', query: 'Please enter your phone number',
-      validator: isPhoneNumValid, transformer: identity
-    },
-    {
-      name: 'address', query: 'Please enter your address line 1',
-      validator: isAddressValid, transformer: identity
-    },
-    {
-      name: 'address', query: 'Please enter your address line 2',
-      validator: isAddressValid, transformer: identity
-    }
-  ]
-  const form = new Form(fields);
+  const form = new Form();
+  form.addField('name', 'Please enter your name', isNameValid, identity);
+  form.addField('dob', 'Please enter your dob', isDateValid, identity);
+  form.addField('hobbies', 'Please enter your hobbies', areHobbiesValid, splitHobbies);
+  form.addField('phoneNumber', 'Please enter your phone number', isPhoneNumValid, identity);
+  form.addField('address', 'Please enter your address line 1', isAddressValid, identity);
+  form.addField('address', 'Please enter your address line 2', isAddressValid, identity);
+
   readInput(form, fillForm, writeToJson, './userInfo.json');
 };
 
