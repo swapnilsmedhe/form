@@ -1,34 +1,22 @@
 const fs = require('fs');
+const { Form } = require('./form.js');
 
-const writeToJson = (inputs, fileName) => {
-  const userInfo = {};
-  userInfo.name = inputs[0];
-  userInfo.dob = inputs[1];
-  userInfo.hobbies = inputs[2].split(',');
-  userInfo.phoneNumber = +inputs[3];
-  userInfo.address = [inputs[4], inputs[5]].join('\n');
-  fs.writeFileSync(fileName, JSON.stringify(userInfo), 'utf8');
+const fillForm = (input, form) => {
+  if (form.validate(input)) {
+    form.register(input);
+    form.nextField();
+  }
+  console.log(form.query());
 };
 
-const readInput = (callback, messages, validators, fileName) => {
-  let index = 0;
-  const inputs = [];
-  console.log(messages[index]);
+const writeToJson = (form, fileName) =>
+  fs.writeFileSync(fileName, JSON.stringify(form.getFormDetails()), 'utf8');
+
+const readInput = (form, dataCallback, endCallback, fileName) => {
+  console.log(form.query());
   process.stdin.setEncoding('utf8');
-
-  process.stdin.on('data', (chunk) => {
-    const validator = validators[index];
-    const input = chunk.trim();
-    if (validator(input)) {
-      inputs.push(input);
-      index++;
-    }
-    console.log(messages[index]);
-  });
-
-  process.stdin.on('end', () => {
-    callback(inputs, fileName);
-  });
+  process.stdin.on('data', (chunk) => dataCallback(chunk.trim(), form));
+  process.stdin.on('end', () => endCallback(form, fileName));
 };
 
 const areAllAlphabets = (string) => {
@@ -44,7 +32,6 @@ const isNameValid = (name) => {
 };
 
 const isDateValid = (date) => /^\d{4}-\d{2}-\d{2}$/.test(date);
-
 const areHobbiesValid = (hobbies) => hobbies.length > 0;
 
 const isPhoneNumValid = (phoneNumber) => {
@@ -54,14 +41,18 @@ const isPhoneNumValid = (phoneNumber) => {
 const isAddressValid = (address) => true;
 
 const main = () => {
-  const messages = [
+  const fields = [
+    'name', 'dob', 'hobbies', 'phoneNumber', 'address', 'address'
+  ];
+  const queries = [
     'Please enter your name', 'Please enter your DOB', 'Please enter your hobbies', 'Enter phone number', 'Enter address line 1', 'Enter address line 2', 'Thank you'
   ];
   const validators = [
     isNameValid, isDateValid, areHobbiesValid,
     isPhoneNumValid, isAddressValid, isAddressValid
   ];
-  readInput(writeToJson, messages, validators, './userInfo.json');
+  const form = new Form(fields, queries, validators);
+  readInput(form, fillForm, writeToJson, './userInfo.json');
 };
 
 main();
