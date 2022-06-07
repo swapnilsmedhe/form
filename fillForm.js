@@ -2,9 +2,12 @@ const fs = require('fs');
 const { Form } = require('./form.js');
 
 const fillForm = (input, form) => {
-  if (form.validate(input)) {
+  if (form.isValid(input)) {
     form.register(input);
     form.nextField();
+  }
+  if (form.areFieldsOver()) {
+    process.stdin.emit('end');
   }
   console.log(form.query());
 };
@@ -16,7 +19,12 @@ const readInput = (form, dataCallback, endCallback, fileName) => {
   console.log(form.query());
   process.stdin.setEncoding('utf8');
   process.stdin.on('data', (chunk) => dataCallback(chunk.trim(), form));
-  process.stdin.on('end', () => endCallback(form, fileName));
+
+  process.stdin.on('end', () => {
+    console.log('Thank you');
+    endCallback(form, fileName);
+    process.exit();
+  });
 };
 
 const areAllAlphabets = (string) => {
@@ -40,18 +48,38 @@ const isPhoneNumValid = (phoneNumber) => {
 
 const isAddressValid = (address) => true;
 
+const identity = (arg) => arg;
+
+const splitHobbies = (hobbies) => hobbies.split(',');
+
 const main = () => {
   const fields = [
-    'name', 'dob', 'hobbies', 'phoneNumber', 'address', 'address'
-  ];
-  const queries = [
-    'Please enter your name', 'Please enter your DOB', 'Please enter your hobbies', 'Enter phone number', 'Enter address line 1', 'Enter address line 2', 'Thank you'
-  ];
-  const validators = [
-    isNameValid, isDateValid, areHobbiesValid,
-    isPhoneNumValid, isAddressValid, isAddressValid
-  ];
-  const form = new Form(fields, queries, validators);
+    {
+      name: 'name', query: 'Please enter your name',
+      validator: isNameValid, transformer: identity
+    },
+    {
+      name: 'dob', query: 'Please enter your dob',
+      validator: isDateValid, transformer: identity
+    },
+    {
+      name: 'hobbies', query: 'Please enter your hobbies',
+      validator: areHobbiesValid, transformer: splitHobbies
+    },
+    {
+      name: 'phoneNumber', query: 'Please enter your phone number',
+      validator: isPhoneNumValid, transformer: identity
+    },
+    {
+      name: 'address', query: 'Please enter your address line 1',
+      validator: isAddressValid, transformer: identity
+    },
+    {
+      name: 'address', query: 'Please enter your address line 2',
+      validator: isAddressValid, transformer: identity
+    }
+  ]
+  const form = new Form(fields);
   readInput(form, fillForm, writeToJson, './userInfo.json');
 };
 
