@@ -8,8 +8,8 @@ class Form {
     this.#formDetails = {};
   }
 
-  addField(name, query, validator, transformer) {
-    this.#fields.push({ name, query, validator, transformer });
+  addField(name, query, validator, formatter) {
+    this.#fields.push({ name, query, validator, formatter });
   }
 
   query() {
@@ -23,8 +23,8 @@ class Form {
   }
 
   register(input) {
-    const { name, transformer } = this.#fields[this.#index];
-    this.#formDetails[name] = transformer(input);
+    const { name, formatter } = this.#fields[this.#index];
+    this.#formDetails[name] = formatter(input);
   }
 
   nextField() {
