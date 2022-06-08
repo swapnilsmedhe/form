@@ -45,4 +45,17 @@ class Form {
   }
 }
 
-exports.Form = Form;
+const registerResponse = (response, form, logger, onFormfilled) => {
+  if (form.isValid(response)) {
+    form.register(response);
+    form.nextField();
+  }
+  if (!form.areFieldsOver()) {
+    logger(form.query());
+    return;
+  }
+  logger('Thank you');
+  onFormfilled(form.getFormDetails());
+};
+
+module.exports = { Form, registerResponse };

@@ -1,31 +1,5 @@
 const fs = require('fs');
-const { Form } = require('./form.js');
-
-const fillForm = (input, form) => {
-  if (form.isValid(input)) {
-    form.register(input);
-    form.nextField();
-  }
-  if (form.areFieldsOver()) {
-    process.stdin.emit('end');
-  }
-  console.log(form.query());
-};
-
-const writeToJson = (form, fileName) =>
-  fs.writeFileSync(fileName, JSON.stringify(form.getFormDetails()), 'utf8');
-
-const readInput = (form, dataCallback, endCallback, fileName) => {
-  console.log(form.query());
-  process.stdin.setEncoding('utf8');
-  process.stdin.on('data', (chunk) => dataCallback(chunk.trim(), form));
-
-  process.stdin.on('end', () => {
-    console.log('Thank you');
-    endCallback(form, fileName);
-    process.exit();
-  });
-};
+const { Form, registerResponse } = require('./src/form.js');
 
 const areAllAlphabets = (string) => {
   return /^[a-z]+$/.test(string);
@@ -52,6 +26,11 @@ const identity = (arg) => arg;
 
 const splitHobbies = (hobbies) => hobbies.split(',');
 
+const onFormFilled = (responses) => {
+  fs.writeFileSync('./form.json', JSON.stringify(responses), 'utf8');
+  process.stdin.destroy();
+};
+
 const main = () => {
   const form = new Form();
   form.addField('name', 'Please enter your name', isNameValid, identity);
@@ -61,7 +40,10 @@ const main = () => {
   form.addField('address', 'Please enter your address line 1', isAddressValid, identity);
   form.addField('address', 'Please enter your address line 2', isAddressValid, identity);
 
-  readInput(form, fillForm, writeToJson, './userInfo.json');
+  console.log(form.query());
+  process.stdin.setEncoding('utf8');
+  process.stdin.on('data', (response) =>
+    registerResponse(response.trim(), form, console.log, onFormFilled));
 };
 
 main();
