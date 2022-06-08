@@ -45,7 +45,7 @@ class Form {
   }
 }
 
-const registerResponse = (response, form, logger, onFormfilled) => {
+const registerResponse = (response, form, logger, onFormFilled) => {
   if (form.isValid(response)) {
     form.register(response);
     form.nextField();
@@ -55,7 +55,7 @@ const registerResponse = (response, form, logger, onFormfilled) => {
     return;
   }
   logger('Thank you');
-  onFormfilled(form.getFormDetails());
+  onFormFilled(form.getFormDetails());
 };
 
 module.exports = { Form, registerResponse };
