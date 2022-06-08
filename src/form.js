@@ -21,8 +21,11 @@ class Form {
     if (!field.isValid(response)) {
       throw new Error('Invalid response');
     }
+
     field.fill(response);
-    this.#index++;
+    if (field.isFilled()) {
+      this.#index++;
+    }
   }
 
   isFilled() {

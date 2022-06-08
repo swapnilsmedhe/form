@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { Field } = require('./src/field.js');
 const { Form, registerResponse } = require('./src/form.js');
+const { MultiLineField } = require('./src/multiLineField.js');
 
 const areAllAlphabets = (string) => {
   return /^[a-z]+$/.test(string);
@@ -23,6 +24,9 @@ const isPhoneNumValid = (phoneNumber) => {
 
 const commaSplit = (hobbies) => hobbies.split(',');
 
+const isAddressValid = (address) => address.length > 0;
+const joinByNewline = (contents) => contents.join('\n');
+
 const onFormFilled = (responses) => {
   fs.writeFileSync('./form.json', JSON.stringify(responses), 'utf8');
   process.stdin.destroy();
@@ -34,7 +38,11 @@ const main = () => {
   const hobbiesField = new Field('hobbies', 'Please enter hobbie', areHobbiesValid, commaSplit);
   const phoneNumField = new Field('phoneNumber', 'Please enter phone number', isPhoneNumValid);
 
-  const form = new Form(nameField, dobField, hobbiesField, phoneNumField);
+  const prompts = ['address line 1', 'address line 2'];
+
+  const addressField = new MultiLineField('address', prompts, isAddressValid, joinByNewline);
+
+  const form = new Form(nameField, dobField, hobbiesField, phoneNumField, addressField);
 
   console.log(form.currentPrompt());
   process.stdin.setEncoding('utf8');
