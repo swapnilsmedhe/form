@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { Field } = require('./src/field.js');
 const { Form, registerResponse } = require('./src/form.js');
 
 const areAllAlphabets = (string) => {
@@ -20,11 +21,7 @@ const isPhoneNumValid = (phoneNumber) => {
   return phoneNumber.length === 10 && areAllDigits(phoneNumber);
 };
 
-const isAddressValid = (address) => true;
-
-const identity = (arg) => arg;
-
-const splitHobbies = (hobbies) => hobbies.split(',');
+const commaSplit = (hobbies) => hobbies.split(',');
 
 const onFormFilled = (responses) => {
   fs.writeFileSync('./form.json', JSON.stringify(responses), 'utf8');
@@ -32,15 +29,14 @@ const onFormFilled = (responses) => {
 };
 
 const main = () => {
-  const form = new Form();
-  form.addField('name', 'Please enter your name', isNameValid, identity);
-  form.addField('dob', 'Please enter your dob', isDateValid, identity);
-  form.addField('hobbies', 'Please enter your hobbies', areHobbiesValid, splitHobbies);
-  form.addField('phoneNumber', 'Please enter your phone number', isPhoneNumValid, identity);
-  form.addField('address', 'Please enter your address line 1', isAddressValid, identity);
-  form.addField('address', 'Please enter your address line 2', isAddressValid, identity);
+  const nameField = new Field('name', 'Please enter name', isNameValid);
+  const dobField = new Field('dob', 'Please enter dob', isDateValid);
+  const hobbiesField = new Field('hobbies', 'Please enter hobbie', areHobbiesValid, commaSplit);
+  const phoneNumField = new Field('phoneNumber', 'Please enter phone number', isPhoneNumValid);
 
-  console.log(form.query());
+  const form = new Form(nameField, dobField, hobbiesField, phoneNumField);
+
+  console.log(form.currentPrompt());
   process.stdin.setEncoding('utf8');
   process.stdin.on('data', (response) =>
     registerResponse(response.trim(), form, console.log, onFormFilled));

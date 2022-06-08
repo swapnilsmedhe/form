@@ -1,61 +1,51 @@
 class Form {
   #fields;
   #index;
-  #formDetails;
-  constructor() {
-    this.#fields = [];
+  constructor(...fields) {
+    this.#fields = fields;
     this.#index = 0;
-    this.#formDetails = {};
   }
 
-  addField(name, query, validator, formatter) {
-    this.#fields.push({ name, query, validator, formatter });
+  currentPrompt() {
+    const field = this.#fields[this.#index]
+    return field.getPrompt();
   }
 
-  query() {
-    const { query } = this.#fields[this.#index];
-    return query;
+  isValid(response) {
+    const field = this.#fields[this.#index];
+    return field.isValid(response);
   }
 
-  isValid(input) {
-    const { validator } = this.#fields[this.#index];
-    return validator(input);
-  }
-
-  register(input) {
-    const { name, formatter } = this.#fields[this.#index];
-    this.#formDetails[name] = formatter(input);
-  }
-
-  nextField() {
+  fillCurrentField(response) {
+    const field = this.#fields[this.#index];
+    field.fill(response);
     this.#index++;
-    if (this.areFieldsOver()) {
-      return;
-    }
-    const { name } = this.#fields[this.#index];
-    return name;
   }
 
-  areFieldsOver() {
-    return this.#index >= this.#fields.length;
+  isFilled() {
+    return this.#fields.every((field) => field.isFilled());
   }
 
-  getFormDetails() {
-    return this.#formDetails;
+  responses() {
+    const responses = {};
+    this.#fields.forEach((field) => {
+      const { name, response } = field.getEntry();
+      responses[name] = response;
+    });
+    return responses;
   }
 }
 
 const registerResponse = (response, form, logger, onFormFilled) => {
   if (form.isValid(response)) {
-    form.register(response);
-    form.nextField();
+    form.fillCurrentField(response);
   }
-  if (!form.areFieldsOver()) {
-    logger(form.query());
+  if (!form.isFilled()) {
+    logger(form.currentPrompt());
     return;
   }
   logger('Thank you');
-  onFormFilled(form.getFormDetails());
+  onFormFilled(form.responses());
 };
 
 module.exports = { Form, registerResponse };
