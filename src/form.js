@@ -7,7 +7,7 @@ class Form {
   }
 
   currentPrompt() {
-    const field = this.#fields[this.#index]
+    const field = this.#fields[this.#index];
     return field.getPrompt();
   }
 
@@ -18,6 +18,9 @@ class Form {
 
   fillCurrentField(response) {
     const field = this.#fields[this.#index];
+    if (!field.isValid(response)) {
+      throw new Error('Invalid response');
+    }
     field.fill(response);
     this.#index++;
   }
@@ -37,8 +40,10 @@ class Form {
 }
 
 const registerResponse = (response, form, logger, onFormFilled) => {
-  if (form.isValid(response)) {
+  try {
     form.fillCurrentField(response);
+  } catch (error) {
+    logger('Invalid response');
   }
   if (!form.isFilled()) {
     logger(form.currentPrompt());
