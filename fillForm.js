@@ -12,8 +12,11 @@ const main = () => {
 
   console.log(form.currentPrompt());
   process.stdin.setEncoding('utf8');
-  process.stdin.on('data', (response) =>
-    registerResponse(response.trim(), form, console.log, onFormFilled));
+  process.stdin.on('data', (chunk) => {
+    const responses = chunk.trim().split('\n');
+    responses.forEach((response) =>
+      registerResponse(response, form, console.log, onFormFilled));
+  });
 };
 
 main();
