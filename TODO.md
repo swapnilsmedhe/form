@@ -1,8 +1,8 @@
 ## TODO
 
-- [ ] Test main
 
 ## DONE
+- [x] Test main
 - [x] Introduce `Field` entity
 - [x] Show a prompt of `Invalid response` when response is invalid
 - [x] Move all validators to a separate file

@@ -12,6 +12,7 @@ const main = () => {
 
   console.log(form.currentPrompt());
   process.stdin.setEncoding('utf8');
+
   process.stdin.on('data', (chunk) => {
     const responses = chunk.trim().split('\n');
     responses.forEach((response) =>
